@@ -101,7 +101,7 @@ if st.session_state.step == 3:
     risk = st.session_state.risk
     stress = st.session_state.stress
     bubble("user", "Show me the mirror.")
-    counsellor Say(f"Here’s what the data whispers…")
+    counsellorSay(f"Here’s what the data whispers…")
 
     # ---- 8a  Gauge ----
     col1, col2, col3 = st.columns([1,2,1])
@@ -157,7 +157,7 @@ if st.session_state.step == 3:
 # ---------- 9. STEP 4 – ACTION PLAN ----------
 if st.session_state.step == 4:
     bubble("user", "Let’s make this real.")
-    counsellor Say("Below is a living document. Download it, print it, stick it on your wall.")
+    counsellorSay("Below is a living document. Download it, print it, stick it on your wall.")
     risk = st.session_state.risk
     feat = st.session_state.feat.iloc[0]
 

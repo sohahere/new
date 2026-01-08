@@ -42,7 +42,7 @@ def bubble(who, text, key=None):
 
 # ---------- 3. COUNSELLOR PERSONA ----------
 COUNSELLOR_NAME = "Aria"
-def counsellor Say(txt, delay=25):
+def counsellorSay(txt, delay=25):
     bubble("bot", txt)
     time.sleep(len(txt)/delay)  # simulate typing
 

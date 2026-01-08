@@ -10,4 +10,3 @@ plotly
 wordcloud
 reportlab
 streamlit-lottie
-requests

@@ -67,7 +67,7 @@ if st.session_state.step == 1:
 # ---------- 7. STEP 2 – GATHER ----------
 if st.session_state.step == 2:
     bubble("user", f"Hey {COUNSELLOR_NAME}, I want to feel in control again.")
-    counsellor Say("I hear you. Let’s shine a light on what’s happening beneath the surface—then build a ladder out.")
+    counsellorSay("I hear you. Let’s shine a light on what’s happening beneath the surface—then build a ladder out.")
     with st.expander("Slide to your reality", expanded=True):
         c1, c2, c3 = st.columns(3)
         with c1: gpa = st.slider("Previous GPA (0-10)", 0., 10., 7.2, 0.1, help="Be honest—this stays between us")

@@ -1,11 +1,12 @@
-# ┌────────────────────────────────────────────────────────────┐
-# │  STUDENT SUCCESS COUNSELLOR  –  LIGHT-THEME  –  FULL FILE │
-# └────────────────────────────────────────────────────────────┘
+# ┌────────────────────────────────────────────────────────────────┐
+# │  STUDENT SUCCESS COUNSELLOR – CINEMA-GRADE – LIGHT THEME     │
+# └────────────────────────────────────────────────────────────────┘
 import streamlit as st
 import joblib, json, pandas as pd, numpy as np, plotly.graph_objects as go
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-import io, datetime, time
+from reportlab.lib.utils import ImageReader
+import io, datetime, time, base64
 
 st.set_page_config(page_title="Counsellor AI", page_icon="🎓", layout="wide")
 
@@ -22,17 +23,23 @@ THRESH = mt['optimal_threshold']
 BENCH = mt['benchmarks']
 SCI = mt['science_facts']
 
-# ---------- 1. LIGHT-THEME ----------
+# ---------- 1. THEME – PRO SERIF + IBM PALETTE ----------
 def theme():
-    t = {"bg": "#ffffff", "card": "#f7f7f7", "text": "#222", "accent": "#0052cc",
-         "success": "#00c853", "danger": "#d50000"}
+    t = {"bg": "#fafbfc", "card": "#ffffff", "text": "#1b2559",
+         "primary": "#0f62fe", "success": "#24a148", "danger": "#da1e28",
+         "warning": "#f1c21b", "muted": "#697694"}
     st.markdown(f"""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    html, body, [class*="css"] {{font-family: 'Inter', sans-serif;}}
     .stApp{{background-color:{t['bg']};}}
-    .block-container{{padding-top:2rem;}}
-    .chat-row{{display:flex;align-items:flex-start;margin:8px 0}}
-    .user{{background-color:{t['accent']};color:white;border-radius:18px;padding:12px 16px;max-width:70%;margin-left:auto;font-size:15px}}
-    .bot{{background-color:{t['card']};color:{t['text']};border-radius:18px;padding:12px 16px;max-width:70%;box-shadow:0 2px 4px rgba(0,0,0,.05);font-size:15px;line-height:1.55}}
+    .main{{padding-top:2rem;}}
+    h1,h2,h3{{color:{t['primary']};font-weight:700;}}
+    .metric-card{{background:linear-gradient(135deg,#ffffff 0%, #f5f7ff 100%);border-radius:12px;padding:18px 22px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:12px;}}
+    .highlight-box{{background:linear-gradient(135deg,{t['primary']} 0%, #0043ce 100%);color:white;border-radius:12px;padding:18px 22px;margin:12px 0;font-size:16px;line-height:1.6;}}
+    .chat-row{{display:flex;align-items:flex-start;margin:10px 0}}
+    .user{{background-color:{t['primary']};color:white;border-radius:20px;padding:14px 18px;max-width:70%;margin-left:auto;font-size:15px}}
+    .bot{{background-color:{t['card']};color:{t['text']};border-radius:20px;padding:14px 18px;max-width:70%;box-shadow:0 2px 8px rgba(0,0,0,.08);font-size:15px;line-height:1.65}}
     </style>""", unsafe_allow_html=True)
     return t
 t = theme()
@@ -53,8 +60,8 @@ if "step" not in st.session_state:
 
 # ---------- 4. STEP 1 – ICE BREAKER ----------
 if st.session_state.step == 1:
-    st.title("Hi, I’m Aria 👋")
-    st.markdown("Your private academic-success coach. Let’s build a plan that *actually* sticks.")
+    st.markdown("<h1>👋 Hi, I’m Aria</h1>", unsafe_allow_html=True)
+    st.markdown('<p style="font-size:18px;color:#697694;">Your private academic-success coach. Let’s build a plan that <em>actually</em> sticks.</p>', unsafe_allow_html=True)
     name = st.text_input("First name", placeholder="Alex")
     if st.button("Start conversation", type="primary"):
         st.session_state.name = name
@@ -65,10 +72,10 @@ if st.session_state.step == 1:
 if st.session_state.step == 2:
     bubble("user", f"Hey Aria, I want to feel in control again.")
     counsellorSay("I hear you. Let’s shine a light on what’s happening beneath the surface—then build a ladder out.")
-    with st.expander("Slide to your reality", expanded=True):
+    with st.expander("📊 Slide to your reality", expanded=True):
         c1, c2, c3 = st.columns(3)
         with c1:
-            gpa = st.slider("Previous GPA (0-10)", 0., 10., 7.2, 0.1)
+            gpa = st.slider("Previous GPA (0-10)", 0., 10., 7.2, 0.1, help="Be honest—this stays between us")
             last_test = st.slider("Last test score (%)", 0, 100, 70, 1)
             backlog = st.slider("Backlog subjects", 0, 8, 0, 1)
         with c2:
@@ -103,7 +110,7 @@ if st.session_state.step == 3:
     bubble("user", "Show me the mirror.")
     counsellorSay("Here’s what the data whispers – and how we turn it into wings.")
 
-    st.markdown("### 🪞 Personal Mirror")
+    st.markdown('<div class="metric-card"><h3>🪞 Personal Mirror</h3></div>', unsafe_allow_html=True)
     col1, col2 = st.columns([1, 2])
     with col1:
         fig = go.Figure(go.Indicator(
@@ -111,17 +118,17 @@ if st.session_state.step == 3:
             domain={'x': [0, 1], 'y': [0, 1]}, title={'text': "Risk Score", 'font': {'size': 18}},
             gauge={'axis': {'range': [None, 100]}, 'bar': {'color': "crimson" if risk > THRESH else "green"},
                    'steps': [{'range': [0, 30], 'color': "#e8f5e9"}, {'range': [30, 70], 'color': "#fff8e1"}]}))
-        fig.update_layout(height=240, margin=dict(l=25, r=25, t=40, b=20))
+        fig.update_layout(height=260, margin=dict(l=25, r=25, t=40, b=20))
         st.plotly_chart(fig, use_container_width=True)
     with col2:
         if risk < 0.25:
-            st.success("🌟 **Rock-star zone!** Your habits are protecting you. Let’s keep the wind in your sails.")
+            st.markdown('<div class="highlight-box">✅ <strong>Rock-star zone!</strong> Your habits are protecting you. Let’s keep the wind in your sails.</div>', unsafe_allow_html=True)
         elif risk < THRESH:
-            st.info("🔸 **Amber** – small tweaks, big peace-of-mind.")
+            st.markdown('<div class="highlight-box" style="background:#fff8e1;color:#1b2559;"><strong>Amber zone.</strong> Small tweaks → big peace-of-mind.</div>', unsafe_allow_html=True)
         else:
-            st.error("🔴 **Red** – your brain is sounding SOS. Let’s triage together.")
+            st.markdown('<div class="highlight-box" style="background:#ffebee;color:#1b2559;"><strong>Red zone.</strong> Your brain is sounding SOS. Let’s triage together.</div>', unsafe_allow_html=True)
 
-    st.markdown("### 🔍 Deep-dive counselling")
+    st.markdown('<div class="metric-card"><h3>🔍 Deep-dive counselling</h3></div>', unsafe_allow_html=True)
     for f in FEATURES:
         val = feat[f]
         med = BENCH[f]
@@ -132,56 +139,60 @@ if st.session_state.step == 3:
         with col2:
             if f == 'attendance_pct':
                 if val >= 90:
-                    st.markdown("✅ **Praise**: Elite attendance – every class you buy lottery tickets for exam questions.")
+                    st.markdown("✅ **Praise**: Elite attendance – **every class you buy lottery tickets for exam questions**.  \n"
+                                "💡 Keep gifting yourself that edge.")
                 else:
                     gain = (90 - val) * 0.3
                     st.markdown(f"🎯 **Fix**: Bump to 90 % → GPA +{gain:.1f} & risk −11 %.  "
-                                f"Micro-step: commit to **only** the next class today.")
+                                f"Micro-step: commit to **only** the next class today. Momentum compounds.")
             elif f == 'social_media_hours_per_day':
                 if val <= 1.5:
-                    st.markdown("✅ **Praise**: Digital discipline – recruiters call this ‘deep-work muscle’.")
+                    st.markdown("✅ **Praise**: Digital discipline – **recruiters call this ‘deep-work muscle’**.  \n"
+                                "💡 Guard it jealousy.")
                 else:
                     save = max(0, val - 1.5)
-                    st.markdown(f"🎯 **Fix**: Cut {save:.1f} h → frees {save * 7:.0f} h/week = 1 full study-day.  "
+                    st.markdown(f"🎯 **Fix**: Cut {save:.1f} h → frees {save * 7:.0f} h/week = **1 full study-day**.  "
                                 f"Science: every 1 h cut → focus IQ +8 pts for 3 h next morning.")
             elif f == 'effort_score':
                 if val > med + 0.5:
-                    st.markdown("✅ **Praise**: You out-work the pack – now optimise with spaced-repetition apps (Anki).")
+                    st.markdown("✅ **Praise**: You **out-work the pack** – now optimise with spaced-repetition apps (Anki).")
                 else:
                     add = med + 0.5 - val
-                    st.markdown(f"🎯 **Fix**: Add {add:.1f} h/week → retention doubles (200 % vs cramming).  "
+                    st.markdown(f"🎯 **Fix**: Add {add:.1f} h/week → **retention doubles** (200 % vs cramming).  "
                                 f"Hack: 25-min Pomodoro after lunch – uses circadian peak.")
             elif f == 'sleep_deviation':
                 if val < 1:
-                    st.markdown("✅ **Praise**: Sleep like a pro – your hippocampus thanks you.")
+                    st.markdown("✅ **Praise**: Sleep like a pro – **your hippocampus thanks you**.  \n"
+                                "💡 Memory branches grow during REM.")
                 else:
-                    st.markdown(f"🎯 **Fix**: Shrink deviation to <1 h → memory consolidation +22 %.  "
-                                f"Tip: set ‘wind-down alarm’ 45 min before bed.")
+                    st.markdown(f"🎯 **Fix**: Shrink deviation to <1 h → **memory consolidation +22 %**.  "
+                                f"Tip: set ‘wind-down alarm’ 45 min before bed – blue-light detox.")
             elif f == 'academic_strength':
                 if val > med:
-                    st.markdown("✅ **Praise**: Strong foundation – tackle tougher problems (Deliberate Difficulty).")
+                    st.markdown("✅ **Praise**: Strong foundation – **tackle tougher problems** (Deliberate Difficulty).")
                 else:
                     st.markdown(f"🎯 **Fix**: Raise last-test by 8 marks → strength +0.4 → risk −7 %.  "
-                                f"Path: redo only the 3 questions you got wrong – highest ROI.")
+                                f"Path: redo *only* the 3 questions you got wrong – **highest ROI**.")
             elif f == 'is_backlog':
                 if val == 0:
-                    st.markdown("✅ **Praise**: Zero baggage – every new topic lands on clean ground.")
+                    st.markdown("✅ **Praise**: Zero baggage – **every new topic lands on clean ground**.  \n"
+                                "💡 Keep the slate clean.")
                 else:
-                    st.markdown("🎯 **Fix**: Clear 1 backlog topic this week → confidence snowball.  "
+                    st.markdown("🎯 **Fix**: Clear 1 backlog topic this week → **confidence snowball**.  "
                                 "Strategy: 30-min daily ‘backlog slot’ – treat like a dentist appointment.")
             elif f == 'extracurricular_engagement_score':
                 if val >= 7:
-                    st.markdown("✅ **Praise**: T-shape profile – recruiters shortlist you first.")
+                    st.markdown("✅ **Praise**: T-shape profile – **recruiters shortlist you first**.  \n"
+                                "💡 Mentor juniors to reinforce your own learning.")
                 else:
-                    st.markdown("🎯 **Fix**: Join 1 club/contest → communication skills + network = hidden GPA booster.")
+                    st.markdown("🎯 **Fix**: Join 1 club/contest → **communication skills + network** = hidden GPA booster.")
 
     # False-positive safeguard
     if risk > THRESH and feat['attendance_pct'] > 85 and feat['effort_score'] > BENCH['effort_score'] + 1:
         st.info("💡 **Heads-up**: model flags risk, but your effort & attendance are **above average**.  "
                 "Likely culprit = one bad test. One strong next test will flip the flag.")
 
-    # Micro-experiment
-    st.markdown("#### Tonight’s 30-min experiment")
+    st.markdown('<div class="metric-card"><h4>🚀 Tonight’s 30-min experiment</h4></div>', unsafe_allow_html=True)
     exps = [("Cut 30 min social media", "social_media_hours_per_day", -0.5),
             ("Add 30 min active study", "effort_score", +0.5),
             ("Sleep 30 min earlier", "sleep_deviation", -0.5)]
@@ -225,7 +236,7 @@ if st.session_state.step == 4:
     if not plan:
         plan.append("Maintain rhythm – mentor a friend (teaching = 90 % retention).")
 
-    st.markdown("### 🎯 4-Week Action Plan")
+    st.markdown('<div class="metric-card"><h3>🎯 4-Week Action Plan</h3></div>', unsafe_allow_html=True)
     for p in plan:
         st.markdown(f"- {p}")
 

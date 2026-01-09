@@ -1,4 +1,4 @@
-. Executive Summary <a id="executive-summary">
+. Executive Summary
 Student-Success Counsellor AI is a full-stack, machine-learning product that:
 Predicts academic-risk 8 weeks before finals (F1 = 0.84)
 Detects stress via free-text logs (TF-IDF + LR, 87 % acc.)

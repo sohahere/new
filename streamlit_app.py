@@ -5,11 +5,11 @@ import streamlit as st
 import joblib, json, pandas as pd, numpy as np, plotly.graph_objects as go
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-import io, datetime, base64, time
+import io, datetime, time
 
 st.set_page_config(page_title="Aria – Student Coach", page_icon="🎓", layout="centered", initial_sidebar_state="collapsed")
 
-# ---------- 0. ASSETS ----------
+# ---------- 0. LOAD ASSETS ----------
 @st.cache_data(show_spinner=False)
 def load_assets():
     acd = joblib.load("academic_pipeline.pkl")
@@ -51,6 +51,10 @@ def centre_button(label, primary=True):
     c1, c2, c3 = st.columns([1, 2, 1])
     with c2:
         return st.button(label, type="primary" if primary else "secondary", use_container_width=True)
+
+def counsellorSay(txt, delay=30):
+    st.markdown(f'<div class="bot" style="background:{t["card"]};color:{t["text"]};border-radius:20px;padding:14px 18px;margin:8px 0;box-shadow:0 2px 8px rgba(0,0,0,.08);font-size:15px;line-height:1.65">{txt}</div>', unsafe_allow_html=True)
+    time.sleep(len(txt)/delay)
 
 # ---------- 4. STEP 1 – WELCOME ----------
 if st.session_state.step == 1:

@@ -84,7 +84,11 @@ if st.session_state.step == 2:
             social = st.slider("Social-media hrs/day", 0., 10., 3.0, 0.5)
             sleep = st.slider("Avg sleep (hrs)", 0., 12., 6.5, 0.5)
             extra = st.slider("Extracurricular score", 1, 10, 5, 1)
-        feel = st.text_area("How are you feeling this week?", "swamped but managing")
+       feel_opts = ["Feeling overwhelmed today","Had a productive study session","Relaxed day, not much stress",
+             "Managing classes and activities","Too much pressure from exams","Struggling to complete assignments",
+             "Low sleep but managing classes","Everything is going smoothly","Balanced day, not feeling stressed",
+             "Difficulty concentrating, lots of stress","Feeling fine, studying well","Stressed because of backlogs"]
+feel = st.selectbox("How are you feeling this week?", feel_opts, index=0)
     if centre_button("Generate my report"):
         # build feature vector
         bl = 1 if backlog > 0 else 0
